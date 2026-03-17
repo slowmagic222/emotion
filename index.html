@@ -147,6 +147,11 @@
   @keyframes blink{0%,100%{opacity:1;}50%{opacity:0;}}
   @media(max-width:500px),(pointer:coarse){#charImg{width:46px;}#charWrap{bottom:80px;right:8px;}#chatBubble{max-width:130px;}}
   body.fullscreen #cw{position:fixed;inset:0;z-index:100;}
+
+#joinBtn {
+  touch-action: manipulation;
+}
+
 </style>
 </head>
 <body>
@@ -369,7 +374,14 @@
   </div>
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js">
+const joinBtn = document.getElementById('joinBtn');
+if (joinBtn) {
+  joinBtn.addEventListener('touchstart', (e) => e.stopPropagation());
+  joinBtn.addEventListener('touchend', (e) => e.stopPropagation());
+}
+
+</script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
 <script>
 // ── SVG paths (unchanged) ────────────────────────────────────────────────────
@@ -2970,23 +2982,8 @@ function playGibberish(){
   setTimeout(function(){popIn("do you know\nthe konami code?",false,null);},5*60*1000);
 })();
 
-  #joinBtn{
-    position:absolute;
-    top:65%;
-    left:50%;
-    transform:translateX(-50%);
-    z-index:15;
-    background:none;
-    border:none;
-    cursor:pointer;
-    pointer-events:all;
-    opacity:0.3;
-    transition:opacity .5s,color .2s;
-    font-f...
-}
 
-}
-  
+
 </script>
 
 </body>
