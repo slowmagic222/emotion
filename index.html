@@ -2908,11 +2908,9 @@ function playGibberish(){
     charTyping=setInterval(function(){
       if(i<msg.length){
         var ch=msg[i];
-        if(ch==='
-') textEl.appendChild(document.createElement('br'));
+        if(ch==='\n') textEl.appendChild(document.createElement('br'));
         else textEl.appendChild(document.createTextNode(ch));
-        if(ch!==' '&&ch!=='
-'&&i%2===0) playGibberish();
+        if(ch!==' '&&ch!=='\n'&&i%2===0) playGibberish();
         i++;
       }else{
         clearInterval(charTyping);
@@ -2951,17 +2949,24 @@ function playGibberish(){
 document.addEventListener('DOMContentLoaded', function(){
   var btn=document.getElementById('joinBtn');
   if(!btn) return;
-  ['touchstart','touchend','click'].forEach(function(evt){
-    btn.addEventListener(evt,function(e){ e.stopPropagation(); }, {passive:false});
+
+  ['pointerdown','touchstart','touchend','click'].forEach(function(evt){
+    btn.addEventListener(evt,function(e){
+      e.stopPropagation();
+    }, {passive:false});
   });
-  btn.addEventListener('touchend', function(e){
-    e.preventDefault();
+
+  function goJoin(e){
+    if(e){
+      e.preventDefault();
+      e.stopPropagation();
+    }
     window.location.href='https://www.slowmagic.cool/join';
-  }, {passive:false});
-  btn.addEventListener('click', function(e){
-    e.preventDefault();
-    window.location.href='https://www.slowmagic.cool/join';
-  });
+  }
+
+  btn.addEventListener('pointerup', goJoin, {passive:false});
+  btn.addEventListener('touchend', goJoin, {passive:false});
+  btn.addEventListener('click', goJoin);
 });
 
 </script>
