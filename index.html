@@ -2947,16 +2947,21 @@ function playGibberish(){
 
 </script>
 
-  <canvas id="lostCanvas" width="120" height="120" style="position:fixed;z-index:5;cursor:grab;touch-action:none;width:320px;height:320px;image-rendering:pixelated;image-rendering:crisp-edges;"></canvas>
+  <canvas id="lostCanvas" width="120" height="120" style="position:fixed;z-index:5;cursor:grab;touch-action:none;image-rendering:pixelated;image-rendering:crisp-edges;"></canvas>
   <div id="lostLabel">&#10035; STREAM LOST</div>
 <script>
 (function(){
   var canvas=document.getElementById('lostCanvas');
   var label=document.getElementById('lostLabel');
   if(!canvas)return;
+  var gifImg, gifCtx, gifTex; // declared here, assigned in build()
 
   // Render at 100x100, display at 240x240 for chunky PS1 look
-  var RSIZE=120, DSIZE=320;
+  var RSIZE=120;
+  // Responsive display size — max 220px, but no more than 35% of the smaller screen dimension
+  var DSIZE=Math.min(220, Math.floor(Math.min(window.innerWidth, window.innerHeight)*0.35));
+  canvas.style.width=DSIZE+'px';
+  canvas.style.height=DSIZE+'px';
   var renderer=new THREE.WebGLRenderer({canvas:canvas,alpha:true,antialias:false});
   renderer.setPixelRatio(1);
   renderer.setSize(RSIZE,RSIZE);
@@ -3008,31 +3013,13 @@ function playGibberish(){
     cdPivot.position.z=0.08;      // slightly in front of sleeve
     group.add(cdPivot);
 
-    // Animated GIF canvas texture
+    // Animated GIF canvas texture — updated inside main animate() loop
     var gifCanvas=document.createElement('canvas');
-    gifCanvas.width=128;gifCanvas.height=128;
-    var gifCtx=gifCanvas.getContext('2d');
-    var gifImg=new Image();
+    gifCanvas.width=128; gifCanvas.height=128;
+    gifCtx=gifCanvas.getContext('2d');
+    gifImg=new Image();
     gifImg.src='data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAA4KCw0LCQ4NDA0QDw4RFiQXFhQUFiwgIRokNC43NjMuMjI6QVNGOj1OPjIySGJJTlZYXV5dOEVmbWVabFNbXVn/2wBDAQ8QEBYTFioXFypZOzI7WVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVn/wAARCABQAFADASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwD0miiszVNQMAMUJ/ekct/d/wDr0CbsT3uo29kMSNl+yL1rDuPEFy5xCqxL+ZrNl3Mx3Eljzk9zUFUkZuRdfUbt/vXEn4NihNRvE+7cyfic1UBzS0DubFtrtypAmCyj8jW3Z6hBeD922H7o3WuNWr9nE5YEZznjFFg5rHXUVFB5ghXzTlsdalqTQSs2907zMvH97rWg7FRkKW+lNjnjkOA2G/ung1SuKUOZHKXFuyEhgQRVGRcHNdrdWkdymGGD2NczqNlLbSrGqGR5DhFX+L/AUJ9jGzW5nr0pcVq2+gllzdXL7j/DD8oH4nk1JJoaqh8ieTPpIdw/OmXYz7aAyMOOK6ewsxCodx83YelVdHtlAbzF2yxnBQ9vf3rVcsOFGfepvfQErasfRTFU/wATZ9h0p9ItO5WN3ErsrSKMHFMe5tn+8Ub3rm9VmeLUbhNvRs/nzVeOZ3/hrT2U9y6aOsE8GPkm2+xOagjk8+aWQlW2ny1I9O/61hxxyvjgD8K0dNVreae3kGCxEqZ7gjB/Ij9RS5ZLdClGzujVij38ngUskewZB4pI5QgwelJLLv4A4pElS5mFtNBP0G7y2x3B/wDr0PqyD7qE/U0y7QTywW4IyW8xs9gP/r1XntGjz8gPuKTTb0KjDm6kj6xIfuhRSW2oySXUSsxwzAYrMljweQQak06ItqEHs4P5c1qqUrXLcUluaOr2cbXSzMD84wfqKit7Fn5C7E9TW7IgkXBAOORVG4k2DHf0qo1ZNKKObSMrsYPJtV+Ubm9TWdeyPcMkgcpJGco4/h/xHqKWVyx61Xds1E2aOehPHrDINtzbvuH8UPzKfw6iiXWSRi3tpCx/il+RR/U1RJyaKki7JoncuXkctI3Jbp+A9BV6O7cDDncPes5W5qdDkYqbNO6LhNrQuMUlHIB+tT6baItyZQCNowPTmqC7iwVQSScAVv20Xkwqp69T9a2dT3dDSU+ZE1Ur60Myl4/9YO3rV2isU2tjNq5ysmVYhgQR1BqB2zXUXVnDdD94uG7MODWTPos6nMTLIPQ8GnchxZlUVZbT7pTzBJ+AzQthdt0gf8RigVivUsWWYKoJY8ADvV6DRZnIMrLGPQcmte1sobUfu1y3djyaLjUWQ2Fl5P72X/WHoP7tX6KKk0P/2Q==';
-    var gifTex=new THREE.CanvasTexture(gifCanvas);
-    function updateGifTex(){
-      if(gifImg.complete&&gifImg.naturalWidth>0){
-        gifCtx.clearRect(0,0,128,128);
-        // Draw circular clip
-        gifCtx.save();
-        gifCtx.beginPath();gifCtx.arc(64,64,62,0,Math.PI*2);gifCtx.clip();
-        gifCtx.drawImage(gifImg,0,0,128,128);
-        gifCtx.restore();
-        // Center hole mask
-        gifCtx.save();
-        gifCtx.globalCompositeOperation='destination-out';
-        gifCtx.beginPath();gifCtx.arc(64,64,10,0,Math.PI*2);gifCtx.fill();
-        gifCtx.restore();
-        gifTex.needsUpdate=true;
-      }
-      requestAnimationFrame(updateGifTex);
-    }
-    updateGifTex();
+    gifTex=new THREE.CanvasTexture(gifCanvas);
 
     var dgeo=new THREE.CylinderGeometry(0.78,0.78,0.05,64);
     var dmats=[
@@ -3049,107 +3036,124 @@ function playGibberish(){
     cdPivot.add(new THREE.Mesh(hgeo,hmat));
   }
 
-  var W=window.innerWidth,H=window.innerHeight;
+  // Add will-change hints for compositor promotion
+  canvas.style.willChange='left,top';
+  label.style.willChange='left,top';
+
+  var W=window.innerWidth, H=window.innerHeight;
   var px=(W-DSIZE)*0.7, py=H*0.13;
-  var vx=1.2,vy=0.7,rotVY=0.015,rotVX=0.006;
-  var dragging=false,dragStartX=0,dragStartY=0;
-  var prevX=0,prevY=0,prevT=0,throwVX=0,throwVY=0;
-  var idleMode=true,idleTimer=null,floatT=0,bobT=0;
-  // Lissajous idle — two independent sine waves with irrational ratio = full roam
-  var idleAx=0,idleAy=0;
-  var labelHalfW=62; // fallback; measured on first frame
+  var vx=1.2, vy=0.7;
+  var dragging=false, dragStartX=0, dragStartY=0;
+  var prevX=0, prevY=0, prevT=0, throwVX=0, throwVY=0;
+  var idleMode=true, idleTimer=null, bobT=0;
+  var idleAx=0, idleAy=0;
+  var gifReady=false; // flag so we only draw gif when loaded
 
-  function getXY(e){return e.touches?{x:e.touches[0].clientX,y:e.touches[0].clientY}:{x:e.clientX,y:e.clientY};}
+  // Resize — update bounds without breaking position
+  window.addEventListener('resize', function(){
+    W=window.innerWidth; H=window.innerHeight;
+    px=Math.min(px, W-DSIZE);
+    py=Math.min(py, H-DSIZE);
+  });
 
-  canvas.addEventListener('mousedown',function(e){
-    dragging=true;idleMode=false;clearTimeout(idleTimer);
-    var p=getXY(e);dragStartX=p.x-px;dragStartY=p.y-py;
-    prevX=p.x;prevY=p.y;prevT=Date.now();throwVX=0;throwVY=0;
-  });
-  canvas.addEventListener('touchstart',function(e){
-    e.preventDefault();dragging=true;idleMode=false;clearTimeout(idleTimer);
-    var p=getXY(e);dragStartX=p.x-px;dragStartY=p.y-py;
-    prevX=p.x;prevY=p.y;prevT=Date.now();throwVX=0;throwVY=0;
-  },{passive:false});
-  window.addEventListener('mousemove',function(e){
-    if(!dragging)return;
-    var p=getXY(e),now=Date.now(),dt=Math.max(1,now-prevT);
-    throwVX=(p.x-prevX)/dt*16;throwVY=(p.y-prevY)/dt*16;
-    prevX=p.x;prevY=p.y;prevT=now;
-    px=p.x-dragStartX;py=p.y-dragStartY;
-  });
-  window.addEventListener('touchmove',function(e){
-    if(!dragging)return;e.preventDefault();
-    var p=getXY(e),now=Date.now(),dt=Math.max(1,now-prevT);
-    throwVX=(p.x-prevX)/dt*16;throwVY=(p.y-prevY)/dt*16;
-    prevX=p.x;prevY=p.y;prevT=now;
-    px=p.x-dragStartX;py=p.y-dragStartY;
-  },{passive:false});
-  window.addEventListener('mouseup',function(){
-    if(!dragging)return;dragging=false;
-    vx=throwVX;vy=throwVY;
+  // Unified pointer helpers — works for both mouse and touch
+  function getXY(e){ return e.touches ? {x:e.touches[0].clientX, y:e.touches[0].clientY} : {x:e.clientX, y:e.clientY}; }
+
+  function onDown(e){
+    if(e.type==='touchstart') e.preventDefault();
+    dragging=true; idleMode=false; clearTimeout(idleTimer); idleTimer=null;
+    var p=getXY(e);
+    dragStartX=p.x-px; dragStartY=p.y-py;
+    prevX=p.x; prevY=p.y; prevT=Date.now(); throwVX=0; throwVY=0;
+  }
+  function onMove(e){
+    if(!dragging) return;
+    if(e.type==='touchmove') e.preventDefault();
+    var p=getXY(e), now=Date.now(), dt=Math.max(8,now-prevT);
+    // Smoother throw: blend new velocity rather than replace
+    throwVX=throwVX*0.4 + (p.x-prevX)/dt*12*0.6;
+    throwVY=throwVY*0.4 + (p.y-prevY)/dt*12*0.6;
+    prevX=p.x; prevY=p.y; prevT=now;
+    px=p.x-dragStartX; py=p.y-dragStartY;
+  }
+  function onUp(){
+    if(!dragging) return;
+    dragging=false;
+    vx=throwVX; vy=throwVY;
+    // Cap speed so it never flies off screen
     var spd=Math.sqrt(vx*vx+vy*vy);
-    if(spd>18){vx=vx/spd*18;vy=vy/spd*18;}
-    if(spd<2){window.open('https://music.seeking.blue/Lost','_blank');}
-    idleTimer=setTimeout(function(){idleMode=true;},3000);
-  });
-  window.addEventListener('touchend',function(){
-    if(!dragging)return;dragging=false;
-    vx=throwVX;vy=throwVY;
-    var spd=Math.sqrt(vx*vx+vy*vy);
-    if(spd>18){vx=vx/spd*18;vy=vy/spd*18;}
-    if(spd<2){window.open('https://music.seeking.blue/Lost','_blank');}
-    idleTimer=setTimeout(function(){idleMode=true;},3000);
-  });
+    if(spd>14){ vx=vx/spd*14; vy=vy/spd*14; }
+    // Tap (barely moved) = open link
+    if(spd<1.5){ window.open('https://music.seeking.blue/Lost','_blank'); }
+    idleTimer=setTimeout(function(){ idleMode=true; idleTimer=null; }, 4000);
+  }
+
+  canvas.addEventListener('mousedown', onDown);
+  canvas.addEventListener('touchstart', onDown, {passive:false});
+  window.addEventListener('mousemove', onMove);
+  window.addEventListener('touchmove', onMove, {passive:false});
+  window.addEventListener('mouseup', onUp);
+  window.addEventListener('touchend', onUp);
 
   function animate(){
     requestAnimationFrame(animate);
-    W=window.innerWidth;H=window.innerHeight;
+    W=window.innerWidth; H=window.innerHeight;
     bobT+=0.018;
+
+    // Update gif texture inside main rAF (no separate loop)
+    if(gifImg.complete && gifImg.naturalWidth>0){
+      if(!gifReady){ gifReady=true; }
+      gifCtx.clearRect(0,0,128,128);
+      gifCtx.save();
+      gifCtx.beginPath(); gifCtx.arc(64,64,62,0,Math.PI*2); gifCtx.clip();
+      gifCtx.drawImage(gifImg,0,0,128,128);
+      gifCtx.restore();
+      gifCtx.save();
+      gifCtx.globalCompositeOperation='destination-out';
+      gifCtx.beginPath(); gifCtx.arc(64,64,10,0,Math.PI*2); gifCtx.fill();
+      gifCtx.restore();
+      if(gifTex) gifTex.needsUpdate=true;
+    }
 
     if(!dragging){
       if(idleMode){
-        // Lissajous pattern — irrational frequency ratio means it never repeats,
-        // covers the full window over time
+        // Lissajous — golden ratio frequency offset, covers full window over time
         idleAx+=0.004;
-        idleAy+=0.004*1.618; // golden ratio offset
-        var targetX=(W-DSIZE)*0.5+(W-DSIZE)*0.48*Math.sin(idleAx);
-        var targetY=(H-DSIZE)*0.5+(H-DSIZE)*0.44*Math.sin(idleAy);
-        px+=(targetX-px)*0.008;
-        py+=(targetY-py)*0.008;
+        idleAy+=0.004*1.618;
+        var tX=(W-DSIZE)*0.5 + (W-DSIZE)*0.48*Math.sin(idleAx);
+        var tY=(H-DSIZE)*0.5 + (H-DSIZE)*0.44*Math.sin(idleAy);
+        px+=(tX-px)*0.008;
+        py+=(tY-py)*0.008;
         group.rotation.y+=0.008;
         group.rotation.x=Math.sin(bobT*0.4)*0.12;
       } else {
-        px+=vx;py+=vy;vx*=0.993;vy*=0.993;
+        px+=vx; py+=vy;
+        // Friction: stops naturally in ~3-4s
+        vx*=0.97; vy*=0.97;
         var mxX=W-DSIZE, mxY=H-DSIZE;
-        if(px<0){px=0;vx=Math.abs(vx)*0.82;}
-        if(px>mxX){px=mxX;vx=-Math.abs(vx)*0.82;}
-        if(py<0){py=0;vy=Math.abs(vy)*0.82;}
-        if(py>mxY){py=mxY;vy=-Math.abs(vy)*0.82;}
-        group.rotation.y+=rotVY;
-        group.rotation.x+=rotVX;
-        if(Math.abs(vx)<0.15&&Math.abs(vy)<0.15&&!idleTimer){
-          idleTimer=setTimeout(function(){idleMode=true;idleTimer=null;},2000);
+        if(px<0)  { px=0;   vx= Math.abs(vx)*0.75; }
+        if(px>mxX){ px=mxX; vx=-Math.abs(vx)*0.75; }
+        if(py<0)  { py=0;   vy= Math.abs(vy)*0.75; }
+        if(py>mxY){ py=mxY; vy=-Math.abs(vy)*0.75; }
+        group.rotation.y+=0.015;
+        group.rotation.x+=0.006;
+        // Settle into idle after coming to rest
+        if(Math.abs(vx)<0.2 && Math.abs(vy)<0.2 && !idleTimer){
+          idleTimer=setTimeout(function(){ idleMode=true; idleTimer=null; }, 2000);
         }
       }
     } else {
-      // Fast spin while dragging
+      // Spin faster while being dragged
       group.rotation.y+=0.06;
       group.rotation.x+=0.02;
     }
 
-    // GIF handles the spinning visual — no disc rotation needed
-
-    // Update position
-    canvas.style.left=Math.round(px)+'px';
-    canvas.style.top=Math.round(py)+'px';
-    // Measure label width once so centering is always exact
-    var lw=label.getBoundingClientRect().width;
-    if(lw>0) labelHalfW=lw/2;
-    label.style.left=Math.round(px)+'px';
-    label.style.top=Math.round(py+16)+'px';
-    label.style.width='';
-    label.style.transform='';
+    // Update DOM positions
+    var lpx=Math.round(px), lpy=Math.round(py);
+    canvas.style.left=lpx+'px';
+    canvas.style.top=lpy+'px';
+    label.style.left=lpx+'px';
+    label.style.top=(lpy+16)+'px';
 
     renderer.render(scene,cam);
   }
