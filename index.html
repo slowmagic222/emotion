@@ -144,7 +144,7 @@
   #lostLabel{position:fixed;z-index:9999;pointer-events:none;font-family:'Press Start 2P',monospace;font-size:9px;letter-spacing:0.06em;text-align:center;text-shadow:0 0 10px currentColor;animation:rgbFlash 1.2s linear infinite;}
   @keyframes rgbFlash{0%{color:#ff2222;}16%{color:#ff8800;}33%{color:#ffff00;}50%{color:#00ff88;}66%{color:#00ccff;}83%{color:#cc44ff;}100%{color:#ff2222;}}
   #lostCanvas{position:fixed;z-index:9998;cursor:grab;touch-action:none;image-rendering:pixelated;image-rendering:crisp-edges;}
-  #ticketLabel{position:fixed;z-index:9997;pointer-events:none;font-family:'Press Start 2P',monospace;font-size:8px;line-height:1.55;letter-spacing:0.08em;text-align:center;text-shadow:0 0 10px currentColor;animation:ticketFlash 1.6s linear infinite;transform:translateX(-50%);white-space:nowrap;}
+  #ticketLabel{position:fixed;z-index:9997;pointer-events:none;font-family:'Press Start 2P',monospace;font-size:8px;line-height:1.55;letter-spacing:0.08em;text-align:center;text-shadow:0 0 10px currentColor;animation:ticketFlash 1.6s linear infinite;transform:translateX(-50%);}
   @keyframes ticketFlash{0%{color:#ffd56a;}25%{color:#fff3c0;}50%{color:#9fe8ff;}75%{color:#ffd56a;}100%{color:#fff3c0;}}
   #ticketCanvas{position:fixed;z-index:9996;cursor:grab;touch-action:none;image-rendering:pixelated;image-rendering:crisp-edges;}
 </style>
@@ -3165,7 +3165,7 @@ function playGibberish(){
 </script>
 
   <canvas id="ticketCanvas" width="120" height="120" style="position:fixed;z-index:5;cursor:grab;touch-action:none;image-rendering:pixelated;image-rendering:crisp-edges;"></canvas>
-  <div id="ticketLabel">TOUR DATES / TICKETS</div>
+  <div id="ticketLabel">TOUR DATES /<br>TICKETS</div>
 <script>
 (function(){
   var canvas=document.getElementById('ticketCanvas');
@@ -3173,7 +3173,7 @@ function playGibberish(){
   if(!canvas)return;
 
   var RSIZE=120;
-  var DSIZE=Math.min(210, Math.floor(Math.min(window.innerWidth, window.innerHeight)*0.32));
+  var DSIZE=Math.min(225, Math.floor(Math.min(window.innerWidth, window.innerHeight)*0.34));
   canvas.style.width=DSIZE+'px';
   canvas.style.height=DSIZE+'px';
 
@@ -3319,7 +3319,7 @@ function playGibberish(){
 
   window.addEventListener('resize', function(){
     W=window.innerWidth; H=window.innerHeight;
-    DSIZE=Math.min(210, Math.floor(Math.min(window.innerWidth, window.innerHeight)*0.32));
+    DSIZE=Math.min(225, Math.floor(Math.min(window.innerWidth, window.innerHeight)*0.34));
     canvas.style.width=DSIZE+'px';
     canvas.style.height=DSIZE+'px';
     px=Math.min(Math.max(px,0), W-DSIZE);
@@ -3404,7 +3404,7 @@ function playGibberish(){
     canvas.style.left=lpx+'px';
     canvas.style.top=lpy+'px';
     label.style.left=(lpx + Math.round(DSIZE*0.5))+'px';
-    label.style.top=(lpy + Math.round(DSIZE*0.16))+'px';
+    label.style.top=(lpy - Math.round(DSIZE*0.18))+'px';
 
     renderer.render(scene,cam);
   }
